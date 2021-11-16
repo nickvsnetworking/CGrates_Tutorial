@@ -1,8 +1,12 @@
 #Id,DestinationId,RatesTag,RoundingMethod,RoundingDecimals,MaxCost,MaxCostStrategy
-DR_AUS_Mobile,DST_AUS_Mobile,RT_25c_PM_PerMinute_Billing,*up,4,0.12,*disconnect
+DR_AUS_Mobile,DST_AUS_Mobile,RT_22c_PM,*up,4,0.12,*disconnect
 DR_AUS_Fixed,DST_AUS_Fixed,RT_20c_Untimed,*up,4,0.12,*disconnect
 DR_AUS_Toll_Free,DST_AUS_Toll_Free,RT_25c_Flat,*up,4,0.12,*disconnect
 
+
+DR_AUS_Supplier_Mobile,DST_AUS_Mobile,RT_1CNT_PER_SEC,*up,4,0.12,*disconnect
+DR_AUS_Supplier_Fixed,DST_AUS_Fixed,RT_1CNT_PER_SEC,*up,4,0.12,*disconnect
+DR_AUS_Supplier_Toll_Free,DST_AUS_Toll_Free,RT_1CNT_PER_SEC,*up,4,0.12,*disconnect
 
 DR_1001_20CNT,DST_1001,RT_20CNT,*up,4,0,
 DR_1002_20CNT,DST_1002,RT_20CNT,*up,4,0,

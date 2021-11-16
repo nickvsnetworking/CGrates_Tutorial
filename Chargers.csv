@@ -1,3 +1,7 @@
 #Tenant,ID,FilterIDs,ActivationInterval,RunID,AttributeIDs,Weight
 cgrates.org,DEFAULT,,,*default,*none,0
 cgrates.org,Raw,,,*raw,*constant:*req.RequestType:*none,0
+
+# CGR_SUPPLIER1 creates an additional CDR for calculating supplier costs
+# uses ATTR_CRG_SUPPLIER1 to replace Category and RequestType in events
+cgrates.org,CRG_SUPPPLIER1,,,SUPPLIER1,ATTR_CRG_SUPPLIER1,0
