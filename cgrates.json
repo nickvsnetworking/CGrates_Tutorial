@@ -1,46 +1,45 @@
 {
-
-// Real-time Online/Offline Charging System (OCS) for Telecom & ISP environments
-// Copyright (C) ITsysCOM GmbH
+// CGRateS Configuration file
+//
+// Used for cgradmin
+// Starts rater, scheduler
 
 "general": {
-    "log_level": 10,
-	"node_id":"CGRFreeswitch",
+	"log_level": 7,
+	"default_tenant": "cgrates.org",
 },
-
 
 "listen": {
-	"rpc_json": ":2012",
-	"rpc_gob": ":2013",
-	"http": ":2080",
+	"rpc_json": ":2012",				// RPC JSON listening address
+	"rpc_gob": ":2013",					// RPC GOB listening address
+	"http": ":2080",					// HTTP listening address
 },
 
+"data_db": {								// database used to store runtime data (eg: accounts, cdr stats)
+	"db_type": "redis",						// data_db type: <redis|mongo>
+	"db_port": 6379, 						// data_db port to reach the database
+	"db_name": "10", 						// data_db database name to connect to
+},
 
 "stor_db": {
 	"db_password": "CGRateS.org",
 },
 
+"rals": {
+	"enabled": true,
+},
 
 "schedulers": {
 	"enabled": true,
 },
 
-
-"rals": {
-	"enabled": true,
-	"thresholds_conns": ["*localhost"],
-	"stats_conns": ["*localhost"],
-},
-
-
 "cdrs": {
 	"enabled": true,
-	"stats_conns": ["*localhost"],
-	"chargers_conns": ["*internal"],
-	"rals_conns": ["*localhost"],
-	"sessions_cost_retries": 5,
 },
 
+"attributes": {
+	"enabled": true,
+},
 
 "chargers": {
 	"enabled": true,
@@ -50,57 +49,15 @@
 
 "sessions": {
 	"enabled": true,
+	"attributes_conns": ["*localhost"],
+	"chargers_conns": ["*localhost"],
 	"rals_conns": ["*localhost"],
 	"cdrs_conns": ["*localhost"],
-	"resources_conns": ["*localhost"],
-	"routes_conns": ["*localhost"],
-	"attributes_conns": ["*localhost"],
-	"stats_conns": ["*localhost"],
-	"thresholds_conns": ["*localhost"],
-	"chargers_conns": ["*internal"],
-	"debit_interval": "5s",
-	"channel_sync_interval":"7s",
 },
-
-
-"attributes": {
-	"enabled": true,
-	"string_indexed_fields": ["*req.Account"],			
-},
-
-
-"resources": {
-	"enabled": true,
-	"string_indexed_fields": ["*req.Account"],
-},
-
-
-"stats": {
-	"enabled": true,
-	"string_indexed_fields": ["*req.Account","*req.RunID","*req.Destination"],
-},
-
-
-"thresholds": {
-	"enabled": true,
-	"string_indexed_fields": ["*req.Account"],
-},
-
-
-"routes": {
-	"enabled": true,
-	"resources_conns": ["*internal"],
-	"stats_conns": ["*internal"],
-	"rals_conns": ["*internal"],	
-	"string_indexed_fields": ["*req.Account"],
-},
-
 
 "apiers": {
 	"enabled": true,
 	"scheduler_conns": ["*internal"],
 },
 
-
 }
-
