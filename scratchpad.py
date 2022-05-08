@@ -46,3 +46,76 @@ print("DestinationRate: ")
 TPDestinationRate = CGRateS_Obj.SendData({"jsonrpc":"2.0","method":"ApierV1.GetTPDestinationRate","params":[{"ID":"DestinationRate_AU","TPid":"cgrates.org"}],"id":1})
 pprint.pprint(TPDestinationRate)
 print("\n\n\n")
+
+
+#Define RatingPlan
+TPRatingPlans = CGRateS_Obj.SendData({
+    "id": 3,
+    "method": "APIerSv1.SetTPRatingPlan",
+    "params": [
+        {
+            "TPid": "cgrates.org",
+            "ID": "RatingPlan_VoiceCalls",
+            "RatingPlanBindings": [
+                {
+                    "DestinationRatesId": "DestinationRate_AU",
+                    "TimingId": "*any",
+                    "Weight": 10
+                }
+            ]
+        }
+    ]
+})
+#Get the RatingPlans
+RatingPlan_VoiceCalls = CGRateS_Obj.SendData(
+    {"jsonrpc": "2.0", "method": "ApierV1.GetTPRatingPlanIds", "params": [{"TPid": "cgrates.org"}]})
+print("RatingPlan_VoiceCalls: ")
+pprint.pprint(RatingPlan_VoiceCalls)
+print("\n\n\n")
+
+
+#Load TariffPlan we just defiend from StorDB to DataDB
+print(CGRateS_Obj.SendData({"method":"APIerSv1.LoadTariffPlanFromStorDb","params":[{"TPid":"cgrates.org","DryRun":False,"Validate":True,"APIOpts":None,"Caching":None}],"id":0}))
+
+
+#Create RatingProfile
+print(CGRateS_Obj.SendData({
+    "method": "APIerSv1.SetRatingProfile",
+    "params": [
+        {
+            "TPid": "RatingProfile_VoiceCalls",
+            "Overwrite": True,
+            "LoadId" : "APItest",
+            "Tenant": "cgrates.org",
+            "Category": "call",
+            "Subject": "*any",
+            "RatingPlanActivations": [
+                {
+                    "ActivationTime": "2014-01-14T00:00:00Z",
+                    "RatingPlanId": "RatingPlan_VoiceCalls",
+                    "FallbackSubjects": ""
+                }
+            ]
+        }
+    ]
+}))
+#Get the Rating Profiles
+print("GetTPRatingProfileIds: ")
+TPRatingProfileIds = CGRateS_Obj.SendData({"jsonrpc": "2.0", "method": "ApierV1.GetRatingProfileIDs", "params": [{"TPid": "cgrates.org"}]})
+print("TPRatingProfileIds: ")
+pprint.pprint(TPRatingProfileIds)
+
+
+
+#Make a test call
+print("Testing call..")
+cdr = CGRateS_Obj.SendData({"method": "APIerSv1.GetCost", "params": [ { \
+    "Tenant": "cgrates.org", \
+    "Category": "call", \
+    "Subject": "1001", \
+    "AnswerTime": "2025-08-04T13:00:00Z", \
+    "Destination": "6140000", \
+    "Usage": "123s", \
+    "APIOpts": {}
+    }], "id": 0})
+pprint.pprint(cdr)
