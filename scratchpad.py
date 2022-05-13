@@ -1,8 +1,9 @@
 import cgrateshttpapi
 import pprint
 import sys
+import uuid
 #Create an Object to send the Requests to (You'll need to update this IP to point to your CGrateS instance)
-CGRateS_Obj = cgrateshttpapi.CGRateS('172.16.41.133', 2080)
+CGRateS_Obj = cgrateshttpapi.CGRateS('172.16.41.134', 2080)
 
 
 #Define Destinations
@@ -20,6 +21,7 @@ print("\n\n\n")
 
 
 #Define Rates
+CGRateS_Obj.SendData({"method":"ApierV1.SetTPRate","params":[{"ID":"Rate_Data_1024_1","TPid":"cgrates.org","RateSlots":[{"ConnectFee":0,"Rate":1,"RateUnit":"1024","RateIncrement":"1024","GroupIntervalStart":"0s"}]}],"id":1})
 CGRateS_Obj.SendData({"method":"ApierV1.SetTPRate","params":[{"ID":"Rate_AU_Mobile_Rate_1","TPid":"cgrates.org","RateSlots":[{"ConnectFee":0,"Rate":22,"RateUnit":"60s","RateIncrement":"60s","GroupIntervalStart":"0s"}]}],"id":1})
 CGRateS_Obj.SendData({"method":"ApierV1.SetTPRate","params":[{"ID":"Rate_AU_Fixed_Rate_1","TPid":"cgrates.org","RateSlots":[{"ConnectFee":0,"Rate":14,"RateUnit":"60s","RateIncrement":"60s","GroupIntervalStart":"0s"}]}],"id":1})
 CGRateS_Obj.SendData({"method":"ApierV1.SetTPRate","params":[{"ID":"Rate_AU_Toll_Free_Rate_1","TPid":"cgrates.org","RateSlots":[{"ConnectFee":25,"Rate":0,"RateUnit":"60s","RateIncrement":"60s","GroupIntervalStart":"0s"}]}],"id":1})
@@ -32,13 +34,19 @@ for TPRateId in TPRateIds:
 print("\n\n\n")
 
 
-#Define DestinationRate
+#Define DestinationRate for Voice
 CGRateS_Obj.SendData({"method": "ApierV1.SetTPDestinationRate", "params": [
         {"ID": "DestinationRate_AU", "TPid": "cgrates.org", "DestinationRates": [ \
             {"DestinationId": "Dest_AU_Fixed", "RateId": "Rate_AU_Fixed_Rate_1", "Rate": None, "RoundingMethod": "*up", "RoundingDecimals": 4, "MaxCost": 0, "MaxCostStrategy": ""},\
             {"DestinationId": "Dest_AU_Mobile", "RateId": "Rate_AU_Mobile_Rate_1", "Rate": None, "RoundingMethod": "*up", "RoundingDecimals": 4, "MaxCost": 0, "MaxCostStrategy": ""}, \
             {"DestinationId": "Dest_AU_TollFree", "RateId": "Rate_AU_Toll_Free_Rate_1", "Rate": None, "RoundingMethod": "*up", "RoundingDecimals": 4, "MaxCost": 0, "MaxCostStrategy": ""}\
      ]},
+    ]})
+#Define DestinationRate for Data
+CGRateS_Obj.SendData({"method": "ApierV1.SetTPDestinationRate", "params": [
+        {"ID": "DestinationRate_DataServices", "TPid": "cgrates.org", "DestinationRates": [ \
+                        {"DestinationId": "*any", "RateId": "Rate_Data_1024_1", "Rate": None, "RoundingMethod": "*up", "RoundingDecimals": 4, "MaxCost": 0, "MaxCostStrategy": ""}\
+        ]},
     ]})
 
 #Get the DestinationRate we just created
@@ -63,6 +71,17 @@ TPRatingPlans = CGRateS_Obj.SendData({
                     "Weight": 10
                 }
             ]
+        },
+        {
+            "TPid": "cgrates.org",
+            "ID": "RatingPlan_DataCalls",
+            "RatingPlanBindings": [
+                {
+                    "DestinationRatesId": "DestinationRate_DataServices",
+                    "TimingId": "*any",
+                    "Weight": 10
+                }
+            ]
         }
     ]
 })
@@ -82,7 +101,7 @@ print(CGRateS_Obj.SendData({"method":"APIerSv1.LoadTariffPlanFromStorDb","params
 print(CGRateS_Obj.SendData({
     "method": "APIerSv1.SetRatingProfile",
     "params": [
-        {
+{
             "TPid": "RatingProfile_VoiceCalls",
             "Overwrite": True,
             "LoadId" : "APItest",
@@ -96,18 +115,50 @@ print(CGRateS_Obj.SendData({
                     "FallbackSubjects": ""
                 }
             ]
+        },
+        {
+            "TPid": "RatingProfile_Data",
+            "Overwrite": True,
+            "LoadId" : "APItest",
+            "Tenant": "cgrates.org",
+            "Category": "data",
+            "Subject": "*any",
+            "RatingPlanActivations": [
+                {
+                    "ActivationTime": "2014-01-14T00:00:00Z",
+                    "RatingPlanId": "RatingPlan_DataCalls",
+                    "FallbackSubjects": ""
+                }
+            ]         
         }
     ]
 }))
+
 #Get the Rating Profiles
 print("GetTPRatingProfileIds: ")
 TPRatingProfileIds = CGRateS_Obj.SendData({"jsonrpc": "2.0", "method": "ApierV1.GetRatingProfileIDs", "params": [{"TPid": "cgrates.org"}]})
 print("TPRatingProfileIds: ")
 pprint.pprint(TPRatingProfileIds)
 
+#Define Charger
+print(CGRateS_Obj.SendData({
+    "method": "APIerSv1.SetChargerProfile",
+    "params": [
+        {
+            "Tenant": "cgrates.org",
+            "ID": "DEFAULT",
+            'FilterIDs': [],
+            'AttributeIDs' : ['*none'],
+            'Weight': 0,
+        }
+    ]   }   ))   
+#Set Charger
+print("GetChargerProfile: ")
+GetChargerProfile = CGRateS_Obj.SendData({"jsonrpc": "2.0", "method": "ApierV1.GetChargerProfile", "params": [{"TPid": "cgrates.org", "ID" : "DEFAULT"}]})
+print("GetChargerProfile: ")
+pprint.pprint(GetChargerProfile)
 
-
-#Make a test call
+#Rate a test call
 print("Testing call..")
 cdr = CGRateS_Obj.SendData({"method": "APIerSv1.GetCost", "params": [ { \
     "Tenant": "cgrates.org", \
@@ -119,3 +170,32 @@ cdr = CGRateS_Obj.SendData({"method": "APIerSv1.GetCost", "params": [ { \
     "APIOpts": {}
     }], "id": 0})
 pprint.pprint(cdr)
+
+#Add a CDR
+print("Testing call..")
+cdr = CGRateS_Obj.SendData({"method": "CDRsV1.ProcessExternalCDR", "params": [ { \
+"Direction": "*out",
+    "Category": "call",
+    "RequestType": "*raw",
+    "ToR": "*monetary",
+    "Tenant": "cgrates.org",
+    "Account": "1002",
+    "Subject": "1002",
+    "Destination": "6141111124211",
+    "AnswerTime": "2022-02-15 13:07:39",
+    "SetupTime": "2022-02-15 13:07:30",
+    "Usage": "181s",
+    "OriginID": "API Function Example"
+    }], "id": 0})
+pprint.pprint(cdr)
+
+#Get CDRs
+cdrs = CGRateS_Obj.SendData({"method": "ApierV1.GetCDRs", "params": [ { \
+"Direction": "*out",
+   "Tenants": ["cgrates.org"],
+   "Accounts": ["1002"],
+    "TimeStart": "2022-02-14 13:07:39",
+    "TimeEnd": "2022-02-16 13:07:39",
+    "Limit": 100
+    }], "id": 0})
+pprint.pprint(cdrs)
