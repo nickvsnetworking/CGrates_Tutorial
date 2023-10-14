@@ -1,30 +1,29 @@
-##CGrateS Python Library
 import requests
 import json
-import pprint
 from collections import OrderedDict
-import logging
-#https://pkg.go.dev/github.com/cgrates/cgrates@v0.10.2/apier/v2
 
 class CGRateS:
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        self.session = requests.Session()
+        self.session.headers.update({'Content-type': 'application/json', 'Accept': 'text/plain'})
         print("Initializing with host " + str(self.host) + " on port " + str(self.port))
-        self.SendData({'method':'ApierV2.Ping','params':[{'Tenant':'cgrates.org'}]})
+        self.SendData({'method': 'ApierV2.Ping', 'params': [{'Tenant': 'cgrates.org'}]})
 
-    
-    def SendData(self, json):
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    def SendData(self, data):
+        url = "http://" + str(self.host) + ":" + str(self.port) + "/jsonrpc"
         print("Sending Request with Body:")
-        print(json)
-        r = requests.post("http://" + str(self.host) + ":" + str(self.port) + "/jsonrpc", json=json, headers=headers)
-        if r.status_code != 200:
-            print("Got error code " + str(r.status_code) + " back")
-            raise
+        print(data)
+        response = self.session.post(url, json=data)
+        
+        if response.status_code != 200:
+            print("Got error code " + str(response.status_code) + " back")
+            raise requests.exceptions.HTTPError(response.status_code, response.text)
+
         try:
-            json_out = r.json(object_pairs_hook=OrderedDict)
+            json_out = json.loads(response.text)
             return json_out
-        except:
-            print("Could not decode JSON out of " + str(r.raw))
+        except json.JSONDecodeError:
+            print("Could not decode JSON out of " + str(response.content))
             raise ValueError("Could not decode JSON output")
