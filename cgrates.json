@@ -37,7 +37,7 @@
 	"enabled": true,
 	"stats_conns": ["*localhost"],
 	"chargers_conns": ["*internal"],
-	"rals_conns": ["*localhost"],
+	"rals_conns": ["*internal"],
 	"sessions_cost_retries": 5,
 },
 
