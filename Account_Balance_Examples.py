@@ -9,6 +9,21 @@ global CGRateS_Obj
 CGRateS_Obj = cgrateshttpapi.CGRateS("localhost", 2080)
 
 
+#Define default Charger
+print(CGRateS_Obj.SendData({
+    "method": "APIerSv1.SetChargerProfile",
+    "params": [
+        {
+            "Tenant": "cgrates.org",
+            "ID": "DEFAULT",
+            'FilterIDs': [],
+            'AttributeIDs' : ['*none'],
+            'Weight': 0,
+        }
+    ]   }   ))   
+
+
+
 #Create the Account object inside CGrateS 
 Create_Account_JSON = {
     "method": "ApierV2.SetAccount",
@@ -194,11 +209,6 @@ print(CGRateS_Obj.SendData(Process_External_CDR_JSON))
 # Get Account Info Again to show the balances being deducted
 pprint.pprint(CGRateS_Obj.SendData({"method": "ApierV2.GetAccount", "params": [
               {"Tenant": "cgrates.org", "Account": "Nick_Test_123"}]}))
-
-
-
-
-
 
 
 
