@@ -1,6 +1,8 @@
 import cgrateshttpapi
 import pprint
-
+import uuid
+import datetime
+now = datetime.datetime.now()
 CGRateS_Obj = cgrateshttpapi.CGRateS('localhost', 2080)
 
 
@@ -34,7 +36,6 @@ result = CGRateS_Obj.SendData({"method":"AttributeSv1.ProcessEvent",
                                "params":[
                                    {"Tenant":"cgrates.org",
                                     "Event":{"Account":"1234"},
-                                    #"APIOpts":{"*processRuns":2,"*profileRuns":1,"*subsys":"*sessions"}
                                     }]})
 pprint.pprint(result)
 
@@ -73,7 +74,7 @@ result = CGRateS_Obj.SendData({"method":"AttributeSv1.ProcessEvent",
 pprint.pprint(result)
 input("Enter to continue")
 
-#Add 3 DIDs to account NickTest1234 that will get transformed to the Account
+#Add 3 DIDs to account NickTest1234 that will get transformed to the Account value of NickTest1234
 Account = 'Nick_Test_123'
 for DID in ['12340001', '12340002', '12340003']:
     AttributeProfile = {
@@ -107,10 +108,7 @@ print(CGRateS_Obj.SendData({"method":"APIerSv1.SetChargerProfile","params":[{"Te
 #Add an SMS Balance
 print(CGRateS_Obj.SendData({"method":"ApierV1.SetBalance","params":[{"Tenant":"cgrates.org","Account":"Nick_Test_123","BalanceType":"*sms","Categories":"*any","Balance":{"ID":"SMS_Balance_1","Value":"100","Weight":25}}],"id":13}))
 
-import uuid
-import datetime
-now = datetime.datetime.now()
-#Generate a test CDR
+#Generate a test SMS CDR
 result = CGRateS_Obj.SendData({
     "method": "CDRsV2.ProcessExternalCDR",
     "params": [
@@ -213,7 +211,7 @@ SetAttributeProfile = {
 result = CGRateS_Obj.SendData(SetAttributeProfile)
 pprint.pprint(result)
 
-#This is in NSN format, which we want to translate to E164
+#This is in NSN format, which we want to translate to E164, and update the Destination to DST_Operator2
 result = CGRateS_Obj.SendData({"method":"AttributeSv1.ProcessEvent",
                                "params":[
                                    {"Tenant":"cgrates.org",
