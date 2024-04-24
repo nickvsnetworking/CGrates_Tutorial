@@ -35,6 +35,9 @@
 
 "cdrs": {
 	"enabled": true,
+	"rals_conns": ["*localhost"],
+	"chargers_conns": ["*localhost"],
+	"attributes_conns": ["*localhost"],
 },
 
 "attributes": {
@@ -43,7 +46,7 @@
 
 "chargers": {
 	"enabled": true,
-	"attributes_conns": ["*internal"],
+	"attributes_conns": ["*localhost"],
 },
 
 
@@ -57,7 +60,94 @@
 
 "apiers": {
 	"enabled": true,
-	"scheduler_conns": ["*internal"],
+	"scheduler_conns": ["*localhost"],
 },
+
+
+"ers": {
+	"enabled": true,
+	"readers": [
+		{
+			"id": "blog_example_csv_parser",
+			"enabled": true,
+			"run_delay":  "-1",
+			"type": "*file_csv",
+			"opts": {
+				"csvFieldSeparator":",",
+				"csvLazyQuotes": true,
+				//csvLazyQuotes Counts the row length and if does not match this value declares an error
+				//-1 means to look at the first row and use that as the row length
+				"csvRowLength": -1
+			},
+			"source_path": "/var/spool/cgrates/blog_example_csv_parser/in",
+			"processed_path": "/var/spool/cgrates/blog_example_csv_parser/out",
+			"concurrent_requests": 1024,	//How many files to process at the same time
+			"flags": [
+				"*cdrs",
+				"*log"
+			],
+			"tenant": "cgrates.org",
+			"filters": [
+				"*string:~*req.2:Nick", //Only process CDRs where Customer == "Nick"
+			],
+			"fields":[
+
+				//Type of Record (Voice)
+				{"tag": "ToR", "path": "*cgreq.ToR", "type": "*constant", "value": "*voice"},
+
+				//Category set to "call" to match RatingProfile_VoiceCalls from our RatingProfile
+				{"tag": "Category", "path": "*cgreq.Category", "type": "*constant", "value": "call"},
+
+				//RequestType is *rated as we won't be deducting from an account balance
+				{"tag": "RequestType", "path": "*cgreq.RequestType", "type": "*constant", "value": "*rated"},
+				
+
+				//Unique ID for this call - We get this from the CallID field in the CSV
+				{"tag": "OriginID", "path": "*cgreq.OriginID", "type": "*variable","value":"~*req.7"},
+				
+				//Account is the Source of the call 
+				{"tag": "Account", "path": "*cgreq.Account", "type": "*variable", "value": "~*req.4"},
+				
+				//Destination is B Party Number - We use 'Called Party Number'				BAD - not 12
+				{"tag": "Destination", "path": "*cgreq.Destination", "type": "*variable", "value": "~*req.5"},
+				{"tag": "Subject", "path": "*cgreq.Subject", "type": "*variable", "value": "~*req.5"},
+
+				//Call Setup Time (In this case, CGrateS can already process this as a datetime object)
+				{"tag": "SetupTime", "path": "*cgreq.SetupTime", "type": "*variable", "value": "~*req.0"},
+
+				//Usage in seconds - We use 'Call duration'
+				{"tag": "Usage", "path": "*cgreq.Usage", "type": "*variable", "value": "~*req.3"},
+
+				//We can include extra columns with extra data - Like this one:
+				{"tag": "Animal", "path": "*cgreq.Animal", "type": "*variable", "value": "~*req.6"},
+
+				{"tag": "Value0", "path": "*cgreq.Value0", "type": "*variable", "value": "~*req.0"},
+				{"tag": "Value1", "path": "*cgreq.Value1", "type": "*variable", "value": "~*req.1"},
+				{"tag": "Value2", "path": "*cgreq.Value2", "type": "*variable", "value": "~*req.2"},
+				{"tag": "Value3", "path": "*cgreq.Value3", "type": "*variable", "value": "~*req.3"},
+				{"tag": "Value4", "path": "*cgreq.Value4", "type": "*variable", "value": "~*req.4"},
+				{"tag": "Value5", "path": "*cgreq.Value5", "type": "*variable", "value": "~*req.5"},
+				{"tag": "Value6", "path": "*cgreq.Value6", "type": "*variable", "value": "~*req.6"},
+				{"tag": "Value7", "path": "*cgreq.Value7", "type": "*variable", "value": "~*req.7"},
+				{"tag": "Value8", "path": "*cgreq.Value8", "type": "*variable", "value": "~*req.8"},
+				{"tag": "Value9", "path": "*cgreq.Value9", "type": "*variable", "value": "~*req.9"},
+				{"tag": "Value10", "path": "*cgreq.Value10", "type": "*variable", "value": "~*req.10"},
+				{"tag": "Value11", "path": "*cgreq.Value11", "type": "*variable", "value": "~*req.11"},
+				{"tag": "Value12", "path": "*cgreq.Value12", "type": "*variable", "value": "~*req.12"},
+				{"tag": "Value13", "path": "*cgreq.Value13", "type": "*variable", "value": "~*req.13"},
+				{"tag": "Value14", "path": "*cgreq.Value14", "type": "*variable", "value": "~*req.14"},
+				{"tag": "Value15", "path": "*cgreq.Value15", "type": "*variable", "value": "~*req.15"},
+				{"tag": "Value16", "path": "*cgreq.Value16", "type": "*variable", "value": "~*req.16"},
+				{"tag": "Value17", "path": "*cgreq.Value17", "type": "*variable", "value": "~*req.17"},
+				{"tag": "Value18", "path": "*cgreq.Value18", "type": "*variable", "value": "~*req.18"},
+				{"tag": "Value19", "path": "*cgreq.Value19", "type": "*variable", "value": "~*req.19"},
+				{"tag": "Value20", "path": "*cgreq.Value20", "type": "*variable", "value": "~*req.20"},
+
+			]
+
+		}
+	
+	]
+}
 
 }

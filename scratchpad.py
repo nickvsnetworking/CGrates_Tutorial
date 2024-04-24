@@ -3,7 +3,7 @@ import pprint
 import sys
 import uuid
 #Create an Object to send the Requests to (You'll need to update this IP to point to your CGrateS instance)
-CGRateS_Obj = cgrateshttpapi.CGRateS('172.16.41.134', 2080)
+CGRateS_Obj = cgrateshttpapi.CGRateS('localhost', 2080)
 
 
 #Define Destinations
@@ -140,7 +140,7 @@ TPRatingProfileIds = CGRateS_Obj.SendData({"jsonrpc": "2.0", "method": "ApierV1.
 print("TPRatingProfileIds: ")
 pprint.pprint(TPRatingProfileIds)
 
-#Define Charger
+# Define Charger
 print(CGRateS_Obj.SendData({
     "method": "APIerSv1.SetChargerProfile",
     "params": [
@@ -148,15 +148,20 @@ print(CGRateS_Obj.SendData({
             "Tenant": "cgrates.org",
             "ID": "DEFAULT",
             'FilterIDs': [],
-            'AttributeIDs' : ['*none'],
+            'AttributeIDs': ['*none'],
+            "RunID": "DEFAULT",
             'Weight': 0,
         }
-    ]   }   ))   
-#Set Charger
+    ]}))
+# Set Charger
 print("GetChargerProfile: ")
-GetChargerProfile = CGRateS_Obj.SendData({"jsonrpc": "2.0", "method": "ApierV1.GetChargerProfile", "params": [{"TPid": "cgrates.org", "ID" : "DEFAULT"}]})
+GetChargerProfile = CGRateS_Obj.SendData(
+    {"jsonrpc": "2.0", "method": "ApierV1.GetChargerProfile", "params": [{"Tenant": "cgrates.org", "ID": "DEFAULT"}]})
 print("GetChargerProfile: ")
 pprint.pprint(GetChargerProfile)
+
+#Clear the Cache
+pprint.pprint(CGRateS_Obj.SendData({"method":"CacheSv1.Clear","params":[]}))
 
 #Rate a test call
 print("Testing call..")
@@ -171,31 +176,22 @@ cdr = CGRateS_Obj.SendData({"method": "APIerSv1.GetCost", "params": [ { \
     }], "id": 0})
 pprint.pprint(cdr)
 
-#Add a CDR
-print("Testing call..")
-cdr = CGRateS_Obj.SendData({"method": "CDRsV1.ProcessExternalCDR", "params": [ { \
-"Direction": "*out",
-    "Category": "call",
-    "RequestType": "*raw",
-    "ToR": "*monetary",
-    "Tenant": "cgrates.org",
-    "Account": "1002",
-    "Subject": "1002",
-    "Destination": "6141111124211",
-    "AnswerTime": "2022-02-15 13:07:39",
-    "SetupTime": "2022-02-15 13:07:30",
-    "Usage": "181s",
-    "OriginID": "API Function Example"
-    }], "id": 0})
-pprint.pprint(cdr)
+# #Add a CDR
+# print("Testing call..")
+# cdr = CGRateS_Obj.SendData({"method": "CDRsV1.ProcessExternalCDR", "params": [ { \
+# "Direction": "*out",
+#     "Category": "call",
+#     #"RequestType": "*raw",
+#     #"ToR": "*monetary",
+#     "Tenant": "cgrates.org",
+#     "Account": "6140000",
+#     "Subject": "6141111124211",
+#     "Destination": "6141111124211",
+#     "AnswerTime": "2022-02-15 13:07:39",
+#     "SetupTime": "2022-02-15 13:07:30",
+#     "Usage": "181s",
+#     "OriginID": "API Function Example"
+#     }], "id": 0})
+# pprint.pprint(cdr)
 
-#Get CDRs
-cdrs = CGRateS_Obj.SendData({"method": "ApierV1.GetCDRs", "params": [ { \
-"Direction": "*out",
-   "Tenants": ["cgrates.org"],
-   "Accounts": ["1002"],
-    "TimeStart": "2022-02-14 13:07:39",
-    "TimeEnd": "2022-02-16 13:07:39",
-    "Limit": 100
-    }], "id": 0})
-pprint.pprint(cdrs)
+
