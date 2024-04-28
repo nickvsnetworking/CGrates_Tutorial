@@ -108,7 +108,7 @@
 				//Account is the Source of the call 
 				{"tag": "Account", "path": "*cgreq.Account", "type": "*variable", "value": "~*req.4"},
 				
-				//Destination is B Party Number - We use 'Called Party Number'				BAD - not 12
+				//Destination is B Party Number - We use 'Called Party Number'
 				{"tag": "Destination", "path": "*cgreq.Destination", "type": "*variable", "value": "~*req.5"},
 				{"tag": "Subject", "path": "*cgreq.Subject", "type": "*variable", "value": "~*req.5"},
 
