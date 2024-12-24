@@ -261,7 +261,7 @@ GetStatQueues = {
 pprint.pprint(CGRateS_Obj.SendData(GetStatQueues))
 
 #Get Metrics
-GetMetrics = {"method":"StatSv1.GetQueueStringMetrics","params":[{"Tenant":"","ID":"StatQueueProfile_VoiceStats","APIOpts":{}}],"id":11}
+GetMetrics = {"method":"StatSv1.GetQueueStringMetrics","params":[{"Tenant":"cgrates.org","ID":"StatQueueProfile_VoiceStats","APIOpts":{}}]}
 pprint.pprint(CGRateS_Obj.SendData(GetMetrics))
-GetMetrics = {"method":"StatSv1.GetQueueStringMetrics","params":[{"Tenant":"","ID":"StatQueueProfile_VoiceStats","APIOpts":{}}],"id":11}
+GetMetrics = {"method":"StatSv1.GetQueueStringMetrics","params":[{"Tenant":"cgrates.org","ID":"StatQueueProfile_VoiceStats","APIOpts":{}}]}
 pprint.pprint(CGRateS_Obj.SendData(GetMetrics))
